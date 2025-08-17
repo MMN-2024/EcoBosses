@@ -4,7 +4,7 @@ version = rootProject.version
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
     compileOnly("com.github.lokka30:LevelledMobs:3.1.4")
-    compileOnly("com.willfp:libreforge:4.51.1")
+    compileOnly("com.github.Auxilor:libreforge:4.51.1")
     implementation("com.willfp:ModelEngineBridge:1.2.0")
 }
 
