@@ -4,26 +4,43 @@ import com.google.common.collect.ImmutableList
 import com.willfp.eco.core.config.ConfigType
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.config.readConfig
-import com.willfp.eco.core.config.updating.ConfigUpdater
 import com.willfp.eco.core.registry.Registry
 import com.willfp.ecobosses.EcoBossesPlugin
-import com.willfp.libreforge.loader.LibreforgePlugin
-import com.willfp.libreforge.loader.configs.ConfigCategory
-import com.willfp.libreforge.loader.configs.LegacyLocation
-import com.willfp.libreforge.separatorAmbivalent
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import java.io.File
 import java.util.UUID
 
-object Bosses : ConfigCategory("boss", "bosses") {
+object Bosses {
     /** Registered bosses. */
     private val registry = Registry<EcoBoss>()
 
-    override val legacyLocation = LegacyLocation(
-        "ecobosses.yml",
-        "bosses"
-    )
+    fun reload(plugin: EcoBossesPlugin) {
+        registry.clear()
+        
+        val bossesDir = File(plugin.dataFolder, "bosses")
+        if (!bossesDir.exists()) {
+            bossesDir.mkdirs()
+        }
+        
+        loadBossesFromDirectory(bossesDir, plugin)
+    }
+    
+    private fun loadBossesFromDirectory(directory: File, plugin: EcoBossesPlugin) {
+        directory.listFiles()?.forEach { file ->
+            if (file.isDirectory) {
+                loadBossesFromDirectory(file, plugin)
+            } else if (file.extension == "yml" && !file.name.startsWith("_")) {
+                try {
+                    val config = plugin.configFactory.create(file)
+                    val id = file.nameWithoutExtension
+                    registry.register(EcoBoss(id, config, plugin))
+                } catch (e: Exception) {
+                    plugin.logger.severe("Failed to load boss from ${file.name}: ${e.message}")
+                }
+            }
+        }
+    }
 
     /**
      * Get all registered [EcoBoss]s.
@@ -44,14 +61,6 @@ object Bosses : ConfigCategory("boss", "bosses") {
     @JvmStatic
     fun getByID(name: String): EcoBoss? {
         return registry[name]
-    }
-
-    override fun clear(plugin: LibreforgePlugin) {
-        registry.clear()
-    }
-
-    override fun acceptConfig(plugin: LibreforgePlugin, id: String, config: Config) {
-        registry.register(EcoBoss(id, config, plugin as EcoBossesPlugin))
     }
 
     /**

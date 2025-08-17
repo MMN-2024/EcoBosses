@@ -26,48 +26,67 @@ import com.willfp.ecobosses.spawn.SpawnEggHandler
 import com.willfp.ecobosses.spawn.SpawnTotemHandler
 import com.willfp.ecobosses.util.DiscoverRecipeListener
 import com.willfp.ecobosses.util.TopDamagerListener
-import com.willfp.libreforge.effects.Effects
-import com.willfp.libreforge.loader.LibreforgePlugin
-import com.willfp.libreforge.loader.configs.ConfigCategory
-import com.willfp.libreforge.mutators.Mutators
-import com.willfp.libreforge.registerHolderProvider
-import com.willfp.libreforge.registerSpecificHolderProvider
-import com.willfp.libreforge.triggers.Triggers
+import com.willfp.eco.core.EcoPlugin
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 
-class EcoBossesPlugin : LibreforgePlugin() {
+class EcoBossesPlugin : EcoPlugin() {
     init {
         instance = this
     }
 
-    override fun loadConfigCategories(): List<ConfigCategory> {
-        return listOf(
-            Bosses
-        )
-    }
-
-    override fun handleLoad() {
-        Effects.register(EffectBossDropChanceMultiplier)
-        Triggers.register(TriggerKillBoss)
-        Triggers.register(TriggerSpawnBoss)
-        Mutators.register(MutatorLocationToBoss)
+    override fun handleAfterLoad() {
+        // Register LibreForge integrations if available
+        if (pluginManager.isPluginEnabled("libreforge")) {
+            try {
+                val effectsClass = Class.forName("com.willfp.libreforge.effects.Effects")
+                val triggersClass = Class.forName("com.willfp.libreforge.triggers.Triggers")
+                val mutatorsClass = Class.forName("com.willfp.libreforge.mutators.Mutators")
+                
+                val registerMethod = effectsClass.getMethod("register", Any::class.java)
+                registerMethod.invoke(null, EffectBossDropChanceMultiplier)
+                
+                val registerTriggerMethod = triggersClass.getMethod("register", Any::class.java)
+                registerTriggerMethod.invoke(null, TriggerKillBoss)
+                registerTriggerMethod.invoke(null, TriggerSpawnBoss)
+                
+                val registerMutatorMethod = mutatorsClass.getMethod("register", Any::class.java)
+                registerMutatorMethod.invoke(null, MutatorLocationToBoss)
+                
+                logger.info("LibreForge integration loaded successfully")
+            } catch (e: Exception) {
+                logger.warning("Failed to load LibreForge integration: ${e.message}")
+            }
+        }
     }
 
     override fun handleEnable() {
-        registerSpecificHolderProvider<Player> {
-            it.bossHolders
+        // Register holder provider if LibreForge is available
+        if (pluginManager.isPluginEnabled("libreforge")) {
+            try {
+                val holderProviderClass = Class.forName("com.willfp.libreforge.HolderProviderKt")
+                val registerMethod = holderProviderClass.getMethod("registerSpecificHolderProvider", Class::class.java, kotlin.jvm.functions.Function1::class.java)
+                registerMethod.invoke(null, Player::class.java) { player: Player ->
+                    (player as Player).bossHolders
+                }
+            } catch (e: Exception) {
+                logger.warning("Failed to register holder provider: ${e.message}")
+            }
         }
     }
 
     override fun handleReload() {
+        this.reload()
         Bosses.getAllAlive().forEach { it.remove() }
-
         AutospawnHandler.startSpawning(this)
     }
 
     override fun handleDisable() {
         Bosses.getAllAlive().forEach { it.remove() }
+    }
+
+    override fun loadConfigCategories(): List<Any> {
+        return listOf(Bosses)
     }
 
     override fun createDisplayModule(): DisplayModule {

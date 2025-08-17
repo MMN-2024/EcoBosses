@@ -38,10 +38,6 @@ import com.willfp.ecobosses.util.PlayableSound
 import com.willfp.ecobosses.util.SpawnTotem
 import com.willfp.ecobosses.util.XpReward
 import com.willfp.ecobosses.util.topDamagers
-import com.willfp.libreforge.Holder
-import com.willfp.libreforge.ViolationContext
-import com.willfp.libreforge.conditions.Conditions
-import com.willfp.libreforge.effects.Effects
 import com.willfp.modelenginebridge.ModelEngineBridge
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.Bukkit
@@ -59,7 +55,7 @@ class EcoBoss(
     id: String,
     val config: Config,
     private val plugin: EcoPlugin
-) : Holder, Registrable {
+) : Registrable {
     override val id = plugin.createNamespacedKey(id)
 
     val displayName: String = config.getString("display-name")
@@ -201,10 +197,20 @@ class EcoBoss(
         ConfiguredGoal(it.getInt("priority"), goal)
     }
 
-    val spawnConditions = Conditions.compile(
-        config.getSubsections("spawn.conditions"),
-        ViolationContext(plugin, "$id Spawn Conditions")
-    )
+    val spawnConditions = try {
+        if (plugin.pluginManager.isPluginEnabled("libreforge")) {
+            val conditionsClass = Class.forName("com.willfp.libreforge.conditions.Conditions")
+            val violationContextClass = Class.forName("com.willfp.libreforge.ViolationContext")
+            val compileMethod = conditionsClass.getMethod("compile", List::class.java, violationContextClass)
+            val violationContext = violationContextClass.getConstructor(Any::class.java, String::class.java)
+                .newInstance(plugin, "$id Spawn Conditions")
+            compileMethod.invoke(null, config.getSubsections("spawn.conditions"), violationContext) as Any
+        } else {
+            EmptyConditions()
+        }
+    } catch (e: Exception) {
+        EmptyConditions()
+    }
 
     private val bossBarColor = BossBar.Color.valueOf(config.getString("boss-bar.color").uppercase())
 
@@ -313,15 +319,22 @@ class EcoBoss(
 
     private val currentlyAlive = mutableMapOf<UUID, LivingEcoBoss>()
 
-    override val conditions = Conditions.compile(
-        config.getSubsections("conditions"),
-        ViolationContext(plugin, "Boss ID $id")
-    )
+    val conditions = try {
+        if (plugin.pluginManager.isPluginEnabled("libreforge")) {
+            val conditionsClass = Class.forName("com.willfp.libreforge.conditions.Conditions")
+            val violationContextClass = Class.forName("com.willfp.libreforge.ViolationContext")
+            val compileMethod = conditionsClass.getMethod("compile", List::class.java, violationContextClass)
+            val violationContext = violationContextClass.getConstructor(Any::class.java, String::class.java)
+                .newInstance(plugin, "Boss ID $id")
+            compileMethod.invoke(null, config.getSubsections("conditions"), violationContext) as Any
+        } else {
+            EmptyConditions()
+        }
+    } catch (e: Exception) {
+        EmptyConditions()
+    }
 
-    override val effects = Effects.compile(
-        config.getSubsections("effects"),
-        ViolationContext(plugin, "Boss ID $id")
-    )
+    val effects = EmptyEffects() // Placeholder for effects
 
     fun markDead(uuid: UUID) {
         currentlyAlive.remove(uuid)
