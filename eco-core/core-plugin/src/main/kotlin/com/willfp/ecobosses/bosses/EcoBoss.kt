@@ -25,6 +25,7 @@ import com.willfp.ecobosses.tick.BossBarTicker
 import com.willfp.ecobosses.tick.BossTicker
 import com.willfp.ecobosses.tick.ChunkTicker
 import com.willfp.ecobosses.tick.DisplayNameTicker
+import com.willfp.ecobosses.tick.EffectClearTicker
 import com.willfp.ecobosses.tick.LifespanTicker
 import com.willfp.ecobosses.tick.TargetTicker
 import com.willfp.ecobosses.tick.TeleportHandler
@@ -94,6 +95,10 @@ class EcoBoss(
     val teleportRange = config.getInt("defence.teleportation.range")
 
     val teleportInterval = config.getInt("defence.teleportation.interval")
+
+    val isImmuneToEffects = config.getBool("defence.effect-immune")
+
+    val effectClearInterval = config.getInt("defence.effect-clear-interval")
 
     private val spawnEggBacker: ItemStack? = run {
         val enabled = config.getBool("spawn.egg.enabled")
@@ -382,7 +387,8 @@ class EcoBoss(
             DisplayNameTicker(),
             TargetTicker(),
             TeleportHandler(),
-            ChunkTicker()
+            ChunkTicker(),
+            EffectClearTicker()
         )
 
         if (isBossBarEnabled) {

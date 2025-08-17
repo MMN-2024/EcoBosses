@@ -44,6 +44,9 @@ defence:
   melee-damage-multiplier: 0.8 # Incoming melee damage will be multiplied by this value. Set to 0 to render immune against melee
   projectile-damage-multiplier: 0.2 # Same as melee multiplier, but for projectiles
 
+  effect-immune: true # If the boss should be immune to potion effects from potions, splash potions, arrows, beacons, etc
+  effect-clear-interval: 100 # Clear all potion effects every x ticks. Set to -1 to disable. (20 ticks = 1 second)
+
   teleportation: # Teleport every x ticks in order to avoid being caged in obsidian or similar
     enabled: true # If the boss should teleport
     interval: 100 # Ticks between teleportation attempts

@@ -9,6 +9,7 @@ import com.willfp.ecobosses.bosses.bossHolders
 import com.willfp.ecobosses.commands.CommandEcoBosses
 import com.willfp.ecobosses.defence.DamageMultiplierHandler
 import com.willfp.ecobosses.defence.ImmunitiesHandler
+import com.willfp.ecobosses.defence.EffectImmunityHandler
 import com.willfp.ecobosses.defence.MountHandler
 import com.willfp.ecobosses.defence.PickupHandler
 import com.willfp.ecobosses.integrations.levelledmobs.IntegrationLevelledMobs
@@ -89,6 +90,7 @@ class EcoBossesPlugin : LibreforgePlugin() {
             MountHandler(),
             PickupHandler(),
             ImmunitiesHandler(),
+            EffectImmunityHandler(),
             CompatibilityListeners(),
             SpawnTotemHandler(),
             DeathListeners(),

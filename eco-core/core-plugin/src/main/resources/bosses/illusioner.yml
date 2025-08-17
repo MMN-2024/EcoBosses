@@ -77,6 +77,9 @@ defence:
   melee-damage-multiplier: 1
   projectile-damage-multiplier: 0.8
 
+  effect-immune: true
+  effect-clear-interval: 60
+
   teleportation:
     enabled: true
     interval: 200
