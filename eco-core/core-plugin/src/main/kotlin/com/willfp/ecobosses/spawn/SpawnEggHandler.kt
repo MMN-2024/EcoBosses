@@ -79,7 +79,7 @@ class SpawnEggHandler(
 
         if (player != null) {
             try {
-                if (plugin.pluginManager.isPluginEnabled("libreforge")) {
+                if (plugin.server.pluginManager.isPluginEnabled("libreforge")) {
                     // Check spawn conditions using reflection if LibreForge is available
                     // For now, allow spawning - full implementation would require more reflection
                 }

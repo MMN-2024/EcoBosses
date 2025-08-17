@@ -52,11 +52,11 @@ import java.util.Objects
 import java.util.UUID
 
 class EcoBoss(
-    id: String,
+    private val bossId: String,
     val config: Config,
     private val plugin: EcoPlugin
 ) : Registrable {
-    override val id = plugin.createNamespacedKey(id)
+    val id = plugin.createNamespacedKey(bossId)
 
     val displayName: String = config.getString("display-name")
 
@@ -198,12 +198,12 @@ class EcoBoss(
     }
 
     val spawnConditions = try {
-        if (plugin.pluginManager.isPluginEnabled("libreforge")) {
+        if (plugin.server.pluginManager.isPluginEnabled("libreforge")) {
             val conditionsClass = Class.forName("com.willfp.libreforge.conditions.Conditions")
             val violationContextClass = Class.forName("com.willfp.libreforge.ViolationContext")
             val compileMethod = conditionsClass.getMethod("compile", List::class.java, violationContextClass)
             val violationContext = violationContextClass.getConstructor(Any::class.java, String::class.java)
-                .newInstance(plugin, "$id Spawn Conditions")
+                .newInstance(plugin, "$bossId Spawn Conditions")
             compileMethod.invoke(null, config.getSubsections("spawn.conditions"), violationContext) as Any
         } else {
             EmptyConditions()
@@ -320,12 +320,12 @@ class EcoBoss(
     private val currentlyAlive = mutableMapOf<UUID, LivingEcoBoss>()
 
     val conditions = try {
-        if (plugin.pluginManager.isPluginEnabled("libreforge")) {
+        if (plugin.server.pluginManager.isPluginEnabled("libreforge")) {
             val conditionsClass = Class.forName("com.willfp.libreforge.conditions.Conditions")
             val violationContextClass = Class.forName("com.willfp.libreforge.ViolationContext")
             val compileMethod = conditionsClass.getMethod("compile", List::class.java, violationContextClass)
             val violationContext = violationContextClass.getConstructor(Any::class.java, String::class.java)
-                .newInstance(plugin, "Boss ID $id")
+                .newInstance(plugin, "Boss ID $bossId")
             compileMethod.invoke(null, config.getSubsections("conditions"), violationContext) as Any
         } else {
             EmptyConditions()
@@ -376,7 +376,7 @@ class EcoBoss(
             val model = ModelEngineBridge.instance.createActiveModel(modelEngineID)
 
             if (model == null) {
-                plugin.logger.warning("Invalid Model Engine ID for boss $id")
+                plugin.logger.warning("Invalid Model Engine ID for boss $bossId")
             } else {
                 val modelled = ModelEngineBridge.instance.createModeledEntity(mob)
                 modelled.addModel(model)
@@ -458,9 +458,9 @@ class EcoBoss(
 
     init {
         Entities.registerCustomEntity(
-            plugin.namespacedKeyFactory.create(id),
+            plugin.namespacedKeyFactory.create(bossId),
             CustomEntity(
-                plugin.namespacedKeyFactory.create(id),
+                plugin.namespacedKeyFactory.create(bossId),
                 {
                     if (it !is LivingEntity) {
                         return@CustomEntity false

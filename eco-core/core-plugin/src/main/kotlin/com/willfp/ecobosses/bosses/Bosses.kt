@@ -1,9 +1,6 @@
 package com.willfp.ecobosses.bosses
 
 import com.google.common.collect.ImmutableList
-import com.willfp.eco.core.config.ConfigType
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.config.readConfig
 import com.willfp.eco.core.registry.Registry
 import com.willfp.ecobosses.EcoBossesPlugin
 import org.bukkit.entity.Entity
@@ -32,7 +29,7 @@ object Bosses {
                 loadBossesFromDirectory(file, plugin)
             } else if (file.extension == "yml" && !file.name.startsWith("_")) {
                 try {
-                    val config = plugin.configFactory.create(file)
+                    val config = plugin.configFactory.create(file, false, true, true)
                     val id = file.nameWithoutExtension
                     registry.register(EcoBoss(id, config, plugin))
                 } catch (e: Exception) {

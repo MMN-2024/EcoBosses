@@ -26,7 +26,7 @@ class EggDisplay(
         val egg = itemStack.bossEgg ?: return
 
         val lines = try {
-            if (plugin.pluginManager.isPluginEnabled("libreforge")) {
+            if (plugin.server.pluginManager.isPluginEnabled("libreforge")) {
                 // Use reflection to check spawn conditions if LibreForge is available
                 val toDispatcherMethod = Class.forName("com.willfp.libreforge.DispatcherKt")
                     .getMethod("toDispatcher", Any::class.java)

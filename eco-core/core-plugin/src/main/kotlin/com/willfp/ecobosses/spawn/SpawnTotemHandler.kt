@@ -55,7 +55,7 @@ class SpawnTotemHandler : Listener {
                 val player = event.player
 
                 try {
-                    if (event.player.server.pluginManager.isPluginEnabled("libreforge")) {
+                    if (player.server.pluginManager.isPluginEnabled("libreforge")) {
                         // Check spawn conditions using reflection if LibreForge is available
                         // For now, allow spawning - full implementation would require more reflection
                     }

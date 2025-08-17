@@ -33,7 +33,6 @@ class EffectImmunityHandler : Listener {
             EntityPotionEffectEvent.Cause.FOOD,
             EntityPotionEffectEvent.Cause.MILK,
             EntityPotionEffectEvent.Cause.TURTLE_HELMET,
-            EntityPotionEffectEvent.Cause.SUSPICIOUS_STEW,
             EntityPotionEffectEvent.Cause.VILLAGER_TRADE,
             EntityPotionEffectEvent.Cause.WARDEN -> {
                 event.isCancelled = true
