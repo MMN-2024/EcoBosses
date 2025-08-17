@@ -29,7 +29,7 @@ object Bosses {
                 loadBossesFromDirectory(file, plugin)
             } else if (file.extension == "yml" && !file.name.startsWith("_")) {
                 try {
-                    val config = plugin.configFactory.create(file, false, true, true)
+                    val config = plugin.createConfig(file.nameWithoutExtension, false)
                     val id = file.nameWithoutExtension
                     registry.register(EcoBoss(id, config, plugin))
                 } catch (e: Exception) {
